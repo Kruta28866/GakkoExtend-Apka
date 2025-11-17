@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>QR</title>
+</head>
+<body>
+<h1>QR do obecności</h1>
+
+<form method="get">
+    <label>Session ID:
+        <input type="text" name="sessionId" th:value="${sessionId}">
+    </label>
+    <button type="submit">Pokaż</button>
+</form>
+
+<div th:if="${sessionId}">
+    <p>QR dla session: <span th:text="${sessionId}"></span></p>
+    <img th:src="@{'/api/sessions/' + ${sessionId} + '/qr'}" alt="QR">
+</div>
+</body>
+</html>
