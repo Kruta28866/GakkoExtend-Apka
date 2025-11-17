@@ -1,43 +1,52 @@
-// src/main/java/org/example/gakkoextend/ui/MainLayout.java
 package org.example.gakkoextend.ui;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.spring.annotation.RouteScope;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.spring.security.AuthenticationContext;
-import com.vaadin.flow.server.auth.AccessAnnotationChecker;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.annotation.security.PermitAll;
-import org.springframework.stereotype.Component;
 
-@Route(value = "/main/main")
+@PermitAll
 public class MainLayout extends AppLayout {
 
-    public MainLayout(AuthenticationContext auth, AccessAnnotationChecker accessChecker) {
-        // Top bar
-        var title = new H1("GakkoExtend");
-        title.getStyle().set("font-size", "1.2rem").set("margin", "0");
-        var header = new HorizontalLayout(new DrawerToggle(), title,
-                new Anchor("/logout", "Wyloguj"));
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.setWidthFull();
-        header.expand(title);
-        addToNavbar(header);
+    private final AuthenticationContext auth;
+    private final SideNav sideNav = new SideNav();
 
-        // Drawer menu
-        addToDrawer(new RouterLink("Start", HomeView.class));
+    public MainLayout(AuthenticationContext auth) {
+        this.auth = auth;
 
-        if (accessChecker.hasAccess(TeacherSessionsView.class)) {
-            addToDrawer(new RouterLink("Sesje (nauczyciel)", TeacherSessionsView.class));
-        }
-        if (accessChecker.hasAccess(StudentAttendanceView.class)) {
-            addToDrawer(new RouterLink("Moje obecności", StudentAttendanceView.class));
-        }
+        setPrimarySection(Section.DRAWER);
+
+        // Górny pasek
+        addToNavbar(new DrawerToggle(), new H1("Gakko Extend"), buildUserMenu());
+
+        // Lewy panel
+        addToDrawer(new Scroller(sideNav));
+
+        // <<< KLUCZOWE >>> tworzymy elementy zależne od Router/Service PO attachu
+        addAttachListener(this::buildNavItemsOnAttach);
+    }
+
+    private MenuBar buildUserMenu() {
+        MenuBar menu = new MenuBar();
+        String username = auth.getPrincipalName().orElse("anonymous");
+        MenuItem user = menu.addItem(username);
+        user.getSubMenu().addItem("Wyloguj", e -> auth.logout());
+        return menu;
+    }
+
+    private void buildNavItemsOnAttach(AttachEvent e) {
+        sideNav.removeAll();
+        // Dodaj tutaj swoje widoki; przykład poniżej:
+        sideNav.addItem(
+                new SideNavItem("Obecności", StudentAttendanceView.class)
+                // , new SideNavItem("Inny widok", SomeOtherView.class)
+        );
     }
 }

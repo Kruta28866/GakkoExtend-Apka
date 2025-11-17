@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import org.example.gakkoextend.entity.ClassSession;
 import org.example.gakkoextend.repository.ClassSessionRepo;
@@ -14,8 +15,9 @@ import org.springframework.stereotype.Component;
 
 @Route(value = "teacher/sessions", layout = MainLayout.class)
 @PageTitle("Sesje")
-@RolesAllowed("TEACHER")
+//@RolesAllowed("TEACHER")
 @Component
+@PermitAll
 public class TeacherSessionsView extends VerticalLayout {
 
     public TeacherSessionsView(ClassSessionRepo sessions) {

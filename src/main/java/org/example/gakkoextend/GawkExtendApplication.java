@@ -20,8 +20,7 @@ public class GawkExtendApplication {
     CommandLineRunner seed(RoleRepo roles,
                            AppUserRepo users,
                            CourseRepo courses,
-                           ClassSessionRepo sessions,
-                           PasswordEncoder encoder) {
+                           ClassSessionRepo sessions) {
         return args -> {
             // ROLE: STUDENT
             Role rStudent = roles.findByName("STUDENT").orElseGet(() -> {
@@ -42,7 +41,7 @@ public class GawkExtendApplication {
                 AppUser u = new AppUser();
                 u.setEmail("teacher@uczelnia.pl");
                 u.setFullName("Prowadzący");
-                u.setPasswordHash(encoder.encode("pass"));
+                u.setPasswordHash("pass");
                 u.getRoles().add(rTeacher);
                 return users.save(u);
             });
@@ -52,7 +51,7 @@ public class GawkExtendApplication {
                 AppUser u = new AppUser();
                 u.setEmail("student@uczelnia.pl");
                 u.setFullName("Student");
-                u.setPasswordHash(encoder.encode("pass"));
+                u.setPasswordHash("pass");
                 u.getRoles().add(rStudent);
                 return users.save(u);
             });
